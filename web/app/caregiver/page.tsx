@@ -1,306 +1,326 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  CalculatorIcon, 
-  CheckCircleIcon, 
-  ArrowRightIcon, 
-  SparklesIcon, 
-  ShieldCheckIcon,
-  BellIcon,
-  HeartIcon,
-  FaceSmileIcon,
-  BookOpenIcon
-} from '@heroicons/react/24/outline';
+import { ArrowRightIcon, CheckCircleIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
-// Checklist item type
-type TodoItem = {
-  id: string;
-  text: string;
-  completed: boolean;
-  category: 'health' | 'admin' | 'care';
+// ─────────────────────────────────────────────────────────────
+// 🌱 돌봄 시작하기 — 메인 진입점 (로그인 불필요)
+// 장기요양등급 신청 단계별 가이드 + AI 등급 예측
+// ─────────────────────────────────────────────────────────────
+
+type GradeStep = {
+  step: number;
+  title: string;
+  desc: string;
+  duration: string;
+  tip?: string;
 };
 
-export default function CaregiverHome() {
-  // Mock/State for interactive items
-  const [todos, setTodos] = useState<TodoItem[]>([
-    { id: '1', text: '부모님 오전 치매 약 복용 확인하기', completed: true, category: 'health' },
-    { id: '2', text: '방문요양센터 주간 일정 확인 전화', completed: false, category: 'admin' },
-    { id: '3', text: '어르신 혈압 체크 및 기록하기', completed: false, category: 'health' },
-    { id: '4', text: '장기요양 인정서 갱신 서류 확인', completed: false, category: 'admin' },
-  ]);
+const GRADE_STEPS: GradeStep[] = [
+  { step: 1, title: '신청서 제출', desc: '국민건강보험공단 지사 방문 or 인터넷/전화 신청 가능', duration: '당일', tip: '신분증 + 주민등록등본 지참' },
+  { step: 2, title: '방문조사', desc: '공단 직원이 자택 방문해 어르신 상태 평가 (약 1시간)', duration: '신청 후 30일 이내', tip: '당일 어르신이 직접 계셔야 합니다' },
+  { step: 3, title: '의사소견서 제출', desc: '주치의 또는 병원에서 소견서 발급 (비용 약 1~2만원)', duration: '방문조사 전후', tip: '치매안심센터 발급 시 무료' },
+  { step: 4, title: '등급판정위원회', desc: '공단 내부 심사 — 1~5등급 또는 인지지원등급 부여', duration: '조사 후 30일 이내' },
+  { step: 5, title: '판정 결과 통보', desc: '우편 또는 앱으로 결과 통보 후 서비스 이용 개시', duration: '신청 후 최대 60일', tip: '결과 불만 시 이의신청 90일 이내' },
+];
 
-  const [parentStatus, setParentStatus] = useState({
-    grade: '예상 3등급',
-    subsidy: '월 120만원 지원 대상',
-    lastCalculated: '2026.06.17'
-  });
+type QuickQuestion = {
+  id: string;
+  question: string;
+  options: { label: string; value: string; score: number }[];
+};
 
-  const [caregiverCondition, setCaregiverCondition] = useState({
-    stressScore: 78,
-    sleepHours: 5.5,
-    careHours: 8,
-    statusText: '지침 (관심 필요)'
-  });
+const QUICK_QUESTIONS: QuickQuestion[] = [
+  {
+    id: 'mobility',
+    question: '혼자 이동하실 수 있나요?',
+    options: [
+      { label: '혼자 자유롭게 이동', value: 'free', score: 0 },
+      { label: '지팡이/보조기구 필요', value: 'assist', score: 20 },
+      { label: '부축/휠체어 필요', value: 'wheelchair', score: 40 },
+      { label: '거의 침대에 계심', value: 'bedridden', score: 60 },
+    ],
+  },
+  {
+    id: 'cognition',
+    question: '인지 능력은 어떤가요?',
+    options: [
+      { label: '정상적으로 소통 가능', value: 'normal', score: 0 },
+      { label: '가끔 기억력 문제', value: 'mild', score: 15 },
+      { label: '치매 진단 받으심', value: 'dementia', score: 35 },
+      { label: '의사소통 매우 어려움', value: 'severe', score: 50 },
+    ],
+  },
+  {
+    id: 'adl',
+    question: '식사/세면/화장실을 혼자 하실 수 있나요?',
+    options: [
+      { label: '모두 혼자 가능', value: 'independent', score: 0 },
+      { label: '일부 도움 필요', value: 'partial', score: 20 },
+      { label: '대부분 도움 필요', value: 'mostly', score: 40 },
+      { label: '전적으로 의존', value: 'full', score: 60 },
+    ],
+  },
+];
 
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [subscribed, setSubscribed] = useState(false);
+const gradeFromScore = (score: number) => {
+  if (score >= 130) return { grade: '1등급', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', desc: '최중증 — 하루 4~5시간 재가서비스 또는 시설 입소 가능' };
+  if (score >= 95) return { grade: '2등급', color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200', desc: '중증 — 하루 3~4시간 재가서비스 이용 가능' };
+  if (score >= 75) return { grade: '3등급', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', desc: '중등도 — 하루 3시간 재가서비스 이용 가능' };
+  if (score >= 60) return { grade: '4등급', color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200', desc: '경증 — 하루 2~3시간 방문요양 이용 가능' };
+  if (score >= 45) return { grade: '5등급', color: 'text-lime-700', bg: 'bg-lime-50', border: 'border-lime-200', desc: '치매 특별등급 — 주간보호 중심 서비스 이용' };
+  return { grade: '등급 외', color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200', desc: '현재 장기요양 대상이 아닐 수 있습니다. 정확한 판단을 위해 신청해 보세요.' };
+};
 
-  // Read state from localStorage if available (hydration safe)
-  useEffect(() => {
-    const savedGrade = localStorage.getItem('caregiver_grade');
-    const savedSubsidy = localStorage.getItem('caregiver_subsidy');
-    if (savedGrade && savedSubsidy) {
-      setParentStatus({
-        grade: savedGrade,
-        subsidy: savedSubsidy,
-        lastCalculated: '최근 계산됨'
-      });
-    }
-  }, []);
+export default function DolbomStartPage() {
+  const [activeSection, setActiveSection] = useState<'guide' | 'predict'>('guide');
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [showResult, setShowResult] = useState(false);
 
-  const toggleTodo = (id: string) => {
-    setTodos(prev => prev.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
+  const totalScore = Object.values(answers).reduce((a, b) => a + b, 0) * 1.2; // 가중치 적용
+  const predictedGrade = gradeFromScore(totalScore);
+  const answeredCount = Object.keys(answers).length;
+
+  const handleAnswer = (questionId: string, score: number) => {
+    setAnswers(prev => ({ ...prev, [questionId]: score }));
   };
 
-  const handleSubscribe = () => {
-    setSubscribed(true);
-    setTimeout(() => {
-      setShowSubscriptionModal(false);
-      alert('돌봄온 3.0 멤버십(월 4,900원) 구독이 완료되었습니다! (시뮬레이션)');
-    }, 800);
+  const handlePredict = () => {
+    if (answeredCount < QUICK_QUESTIONS.length) {
+      alert('모든 질문에 답해주세요.');
+      return;
+    }
+    setShowResult(true);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 px-4 py-6 max-w-md mx-auto relative">
-      
-      {/* Hero Welcome banner */}
-      <div className="mb-6 relative overflow-hidden bg-gradient-to-br from-indigo-900 to-indigo-950 text-white rounded-3xl p-6 shadow-xl shadow-indigo-950/20">
-        <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-rose-500/20 to-orange-500/20 rounded-full blur-2xl"></div>
-        <span className="inline-block bg-indigo-800/80 text-rose-300 border border-indigo-700/50 text-[10px] font-extrabold px-2.5 py-1 rounded-full mb-3 tracking-wider uppercase">
-          부모를 돌보는 사람을 위한 운영비서
-        </span>
-        <h1 className="text-xl font-black leading-tight mb-2">
-          부모님 돌봄으로 지친<br />
-          <span className="text-rose-400">보호자님의 마음</span>을 돌봅니다.
-        </h1>
-        <p className="text-xs text-indigo-200/90 font-medium">
-          대한민국 최초 보호자 중심 돌봄 지원 플랫폼 돌봄온
-        </p>
+    <div className="min-h-screen bg-slate-50 text-slate-900 max-w-md mx-auto">
+
+      {/* ── Hero Section ── */}
+      <div className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 text-white px-5 pt-6 pb-8 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-4 right-4 w-32 h-32 bg-white rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-teal-300 rounded-full blur-2xl" />
+        </div>
+        <div className="relative">
+          <span className="inline-block bg-emerald-700/60 border border-emerald-600/50 text-emerald-200 text-[10px] font-extrabold px-2.5 py-1 rounded-full mb-3 tracking-wide uppercase">
+            🌱 로그인 없이 바로 시작
+          </span>
+          <h1 className="text-2xl font-black leading-tight mb-2">
+            어디서부터<br />
+            <span className="text-emerald-300">시작해야 할지</span> 몰랐죠?
+          </h1>
+          <p className="text-sm text-emerald-100/90 font-medium leading-relaxed">
+            장기요양등급 신청부터 시설 찾기까지<br />
+            돌봄온이 단계별로 안내해 드립니다.
+          </p>
+        </div>
       </div>
 
-      {/* 1. 예상 장기요양등급 & 지원금 위젯 */}
-      <section className="mb-6">
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm relative overflow-hidden">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <span className="text-xs font-bold text-slate-400 block mb-0.5">우리 부모님 케어 나침반</span>
-              <h2 className="text-base font-extrabold text-slate-800">예상 등급 및 정부 지원금</h2>
-            </div>
-            <span className="text-[10px] bg-rose-50 text-rose-500 px-2 py-0.5 rounded-full font-bold">
-              {parentStatus.lastCalculated}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-rose-50/50 border border-rose-100/50 rounded-xl p-3.5 text-center">
-              <span className="text-xs text-rose-600 font-bold block mb-1">장기요양등급</span>
-              <span className="text-lg font-black text-rose-700">{parentStatus.grade}</span>
-            </div>
-            <div className="bg-indigo-50/50 border border-indigo-100/50 rounded-xl p-3.5 text-center">
-              <span className="text-xs text-indigo-600 font-bold block mb-1">예상 지원 한도</span>
-              <span className="text-xs font-black text-indigo-700 block mt-1 leading-snug">{parentStatus.subsidy}</span>
-            </div>
-          </div>
-
-          <Link 
-            href="/caregiver/calculator" 
-            className="w-full flex items-center justify-center space-x-2 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-extrabold transition-all active:scale-[0.98]"
+      {/* ── Tab Toggle ── */}
+      <div className="px-4 -mt-4 relative z-10 mb-5">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-lg p-1.5 flex">
+          <button
+            onClick={() => { setActiveSection('guide'); setShowResult(false); }}
+            className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all ${
+              activeSection === 'guide'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-500 hover:bg-slate-50'
+            }`}
           >
-            <CalculatorIcon className="w-4 h-4 text-rose-400" />
-            <span>장기요양 모의 테스트 및 계산기 시작</span>
-            <ArrowRightIcon className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </section>
-
-      {/* 2. 오늘 할 일 (Checklist) */}
-      <section className="mb-6">
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-base font-extrabold text-slate-800 flex items-center gap-1.5">
-              <CheckCircleIcon className="w-5 h-5 text-indigo-600" />
-              <span>보호자의 오늘 할 일</span>
-            </h2>
-            <span className="text-xs font-bold text-slate-400">
-              {todos.filter(t => t.completed).length}/{todos.length} 완료
-            </span>
-          </div>
-
-          <div className="space-y-2.5">
-            {todos.map(todo => (
-              <div 
-                key={todo.id} 
-                onClick={() => toggleTodo(todo.id)}
-                className={`flex items-center space-x-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
-                  todo.completed 
-                    ? 'bg-slate-50/70 border-slate-100 text-slate-400 line-through' 
-                    : 'bg-white border-slate-100 text-slate-700 hover:bg-slate-50/30'
-                }`}
-              >
-                <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-all ${
-                  todo.completed 
-                    ? 'bg-indigo-600 border-indigo-600 text-white' 
-                    : 'border-slate-300 bg-white'
-                }`}>
-                  {todo.completed && <span className="text-[10px] font-bold">✓</span>}
-                </div>
-                <span className="text-xs font-semibold flex-grow leading-normal">
-                  {todo.text}
-                </span>
-                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
-                  todo.category === 'health' 
-                    ? 'bg-emerald-50 text-emerald-600' 
-                    : 'bg-indigo-50 text-indigo-600'
-                }`}>
-                  {todo.category === 'health' ? '의료' : '행정'}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. 최근 기록 & 보호자 상태 */}
-      <section className="grid grid-cols-2 gap-4 mb-6">
-        {/* 최근 기록 요약 */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm flex flex-col justify-between">
-          <div>
-            <span className="text-[10px] font-extrabold text-slate-400 block mb-1">최근 돌봄 기록</span>
-            <div className="border-l-2 border-indigo-500 pl-2.5 my-2">
-              <span className="text-[10px] text-indigo-600 font-bold block">3일 전 (06.14)</span>
-              <p className="text-xs font-bold text-slate-800 line-clamp-2 mt-0.5">치매안심센터 정기 검사 방문 완료</p>
-            </div>
-          </div>
-          <Link href="/caregiver/records" className="text-[10px] font-extrabold text-indigo-600 hover:underline flex items-center mt-2">
-            전체 기록 보기 →
-          </Link>
-        </div>
-
-        {/* 보호자 상태 */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-start mb-1">
-              <span className="text-[10px] font-extrabold text-slate-400">보호자 상태</span>
-              <span className="text-[9px] bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded font-bold">
-                {caregiverCondition.statusText}
-              </span>
-            </div>
-            <div className="my-2">
-              <div className="flex justify-between text-[11px] font-bold text-slate-700 mb-1">
-                <span>스트레스 지수</span>
-                <span className="text-rose-600">{caregiverCondition.stressScore}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-orange-400 to-rose-500" style={{ width: `${caregiverCondition.stressScore}%` }}></div>
-              </div>
-            </div>
-          </div>
-          <Link href="/caregiver/me" className="text-[10px] font-extrabold text-rose-500 hover:underline flex items-center mt-2">
-            스트레스 분석 & 충전하기 →
-          </Link>
-        </div>
-      </section>
-
-      {/* 4. 월 4,900원 멤버십 배너 */}
-      <section className="mb-6">
-        <div className="bg-gradient-to-r from-amber-400/90 to-orange-500/90 text-slate-900 rounded-2xl p-5 shadow-md relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 bg-white/20 rounded-full blur-2xl pointer-events-none"></div>
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="text-[9px] bg-slate-900 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Premium
-              </span>
-              <h3 className="text-sm font-black mt-2 leading-snug">
-                돌봄온 3.0 멤버십 구독<br />
-                서류 무제한 보관 및 가족 연동
-              </h3>
-              <p className="text-[11px] text-slate-800 mt-1 font-medium">
-                월 4,900원으로 온 가족이 실시간 일정을 공유하세요.
-              </p>
-            </div>
-            <span className="text-lg font-black text-slate-900 flex flex-col items-end">
-              <span>₩4,900</span>
-              <span className="text-[9px] font-bold opacity-80">/월</span>
-            </span>
-          </div>
-
-          <button 
-            onClick={() => setShowSubscriptionModal(true)}
-            className="w-full mt-4 bg-slate-900 text-white hover:bg-slate-800 text-xs font-extrabold py-2.5 rounded-xl transition-all"
+            📋 단계별 신청 가이드
+          </button>
+          <button
+            onClick={() => { setActiveSection('predict'); setShowResult(false); }}
+            className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all ${
+              activeSection === 'predict'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-500 hover:bg-slate-50'
+            }`}
           >
-            {subscribed ? '구독 중 (멤버십 가입됨)' : '30일 무료 체험 시작하기'}
+            🤖 AI 등급 예측
           </button>
         </div>
-      </section>
+      </div>
 
-      {/* 5. 투자 문구 및 카피라이팅 (보호자 중심 브랜딩) */}
-      <footer className="text-center py-6 border-t border-slate-100 mt-4">
-        <p className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 py-2.5 px-4 rounded-xl leading-relaxed">
-          "돌봄온은 노인이 아닌, 부모를 돌보다가 하루하루 지쳐가는 보호자를 직접 돕는 따뜻한 비서 플랫폼입니다."
-        </p>
-        <p className="text-[10px] text-slate-400 mt-3">
-          © 2026 DolbomON Inc. All rights reserved.
-        </p>
-      </footer>
+      <div className="px-4 pb-8">
 
-      {/* Subscription Modal Simulation */}
-      {showSubscriptionModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-sm border border-slate-100 shadow-2xl animate-in zoom-in duration-300">
-            <div className="text-center mb-5">
-              <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                <SparklesIcon className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-black text-slate-900">돌봄온 3.0 프리미엄</h3>
-              <p className="text-xs text-slate-500 mt-1">월 4,900원으로 빈틈없는 부모님 돌봄을 준비하세요.</p>
-            </div>
-
-            <div className="space-y-3 mb-6">
-              <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl">
-                <ShieldCheckIcon className="w-5 h-5 text-indigo-600 flex-shrink-0" />
-                <span className="text-xs font-bold text-slate-700">종이 서류 무제한 스캔 & 보관 (서류함)</span>
-              </div>
-              <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl">
-                <BellIcon className="w-5 h-5 text-indigo-600 flex-shrink-0" />
-                <span className="text-xs font-bold text-slate-700">돌봄 일정 카카오톡 실시간 가족 공유</span>
-              </div>
-              <div className="flex items-center space-x-3 p-3 bg-slate-50 rounded-xl">
-                <BookOpenIcon className="w-5 h-5 text-indigo-600 flex-shrink-0" />
-                <span className="text-xs font-bold text-slate-700">진료 & 처방 타임라인 PDF 자동 리포트 생성</span>
+        {/* ── 단계별 신청 가이드 ── */}
+        {activeSection === 'guide' && (
+          <div className="space-y-4 animate-in fade-in duration-300">
+            {/* 신청 방법 안내 */}
+            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
+              <h3 className="text-xs font-extrabold text-emerald-800 mb-3">📍 신청 방법 선택하기</h3>
+              <div className="space-y-2">
+                {[
+                  { icon: '🏢', label: '방문 신청', desc: '가까운 국민건강보험공단 지사', highlight: false },
+                  { icon: '📱', label: '인터넷 신청', desc: 'nhis.or.kr → 장기요양 → 등급신청', highlight: true },
+                  { icon: '📞', label: '전화 신청', desc: '1577-1000 (콜센터)', highlight: false },
+                ].map(item => (
+                  <div key={item.label} className={`flex items-center space-x-3 p-2.5 rounded-xl ${item.highlight ? 'bg-emerald-600 text-white' : 'bg-white border border-emerald-100'}`}>
+                    <span className="text-lg">{item.icon}</span>
+                    <div>
+                      <div className={`text-xs font-extrabold ${item.highlight ? 'text-white' : 'text-slate-800'}`}>{item.label}</div>
+                      <div className={`text-[10px] font-medium ${item.highlight ? 'text-emerald-100' : 'text-slate-500'}`}>{item.desc}</div>
+                    </div>
+                    {item.highlight && <span className="ml-auto text-[9px] bg-white/20 text-white font-bold px-1.5 py-0.5 rounded">추천</span>}
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <button 
-                onClick={() => setShowSubscriptionModal(false)}
-                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all"
+            {/* 5단계 타임라인 */}
+            <h3 className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
+              <span>장기요양등급 신청 5단계</span>
+              <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold">총 최대 60일</span>
+            </h3>
+
+            <div className="relative border-l-2 border-emerald-200 ml-4 pl-5 space-y-5">
+              {GRADE_STEPS.map((s, i) => (
+                <div key={s.step} className="relative">
+                  <div className="absolute -left-[27px] top-0 w-6 h-6 rounded-full bg-emerald-600 border-2 border-white shadow-sm flex items-center justify-center">
+                    <span className="text-[9px] font-black text-white">{s.step}</span>
+                  </div>
+                  <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+                    <div className="flex justify-between items-start mb-1">
+                      <h4 className="text-xs font-extrabold text-slate-900">{s.title}</h4>
+                      <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold whitespace-nowrap ml-2">{s.duration}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 font-medium leading-relaxed">{s.desc}</p>
+                    {s.tip && (
+                      <div className="mt-2 flex items-start gap-1.5 bg-amber-50 border border-amber-100 rounded-xl p-2">
+                        <span className="text-amber-500 text-xs">💡</span>
+                        <p className="text-[10px] text-amber-800 font-bold">{s.tip}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 등급별 혜택 미리보기 */}
+            <div className="bg-slate-900 text-white rounded-2xl p-5 mt-6">
+              <h3 className="text-sm font-extrabold mb-3 flex items-center gap-1.5">
+                <span>💰</span>
+                <span>등급 받으면 이런 혜택이!</span>
+              </h3>
+              <div className="space-y-2">
+                {[
+                  { grade: '1~2등급', benefit: '시설 입소 or 월 최대 208만원 재가급여' },
+                  { grade: '3~4등급', benefit: '방문요양 하루 3~4시간, 월 최대 160만원' },
+                  { grade: '5등급', benefit: '주간보호센터 이용, 치매 특화 케어' },
+                ].map(item => (
+                  <div key={item.grade} className="flex justify-between items-center py-2 border-b border-slate-700 last:border-0">
+                    <span className="text-xs font-bold text-slate-300">{item.grade}</span>
+                    <span className="text-xs font-extrabold text-emerald-400 text-right">{item.benefit}</span>
+                  </div>
+                ))}
+              </div>
+              <Link
+                href="/caregiver/calculator"
+                className="w-full mt-4 flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl text-xs font-extrabold transition-all"
               >
-                닫기
-              </button>
-              <button 
-                onClick={handleSubscribe}
-                className="flex-1 py-3 bg-gradient-to-r from-rose-500 to-indigo-600 text-white rounded-xl text-xs font-bold transition-all hover:opacity-95 shadow-md shadow-indigo-200"
-              >
-                구독 개시 (₩4,900)
-              </button>
+                정확한 비용 계산하기 <ArrowRightIcon className="w-3.5 h-3.5" />
+              </Link>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* ── AI 등급 예측 ── */}
+        {activeSection === 'predict' && !showResult && (
+          <div className="space-y-4 animate-in fade-in duration-300">
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-center">
+              <p className="text-xs text-blue-800 font-bold leading-relaxed">
+                3가지 질문으로 예상 장기요양등급을 <br />미리 확인해 보세요. (30초 소요)
+              </p>
+              <p className="text-[10px] text-blue-500 mt-1">※ 참고용이며 실제 등급과 다를 수 있습니다</p>
+            </div>
+
+            {QUICK_QUESTIONS.map((q, qIdx) => (
+              <div key={q.id} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+                <div className="flex items-start gap-2 mb-3">
+                  <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black flex items-center justify-center flex-shrink-0">{qIdx + 1}</span>
+                  <h4 className="text-xs font-extrabold text-slate-800 leading-snug">{q.question}</h4>
+                </div>
+                <div className="space-y-2">
+                  {q.options.map(opt => {
+                    const selected = answers[q.id] === opt.score;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => handleAnswer(q.id, opt.score)}
+                        className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                          selected
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                            : 'bg-slate-50 text-slate-700 border-slate-100 hover:bg-slate-100'
+                        }`}
+                      >
+                        {selected ? '✓ ' : ''}{opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            <button
+              onClick={handlePredict}
+              disabled={answeredCount < QUICK_QUESTIONS.length}
+              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm font-extrabold rounded-2xl transition-all shadow-md shadow-emerald-100"
+            >
+              {answeredCount < QUICK_QUESTIONS.length
+                ? `${QUICK_QUESTIONS.length - answeredCount}개 질문 남음...`
+                : '🤖 AI 등급 예측 결과 보기'}
+            </button>
+          </div>
+        )}
+
+        {/* ── AI 예측 결과 ── */}
+        {activeSection === 'predict' && showResult && (
+          <div className="animate-in fade-in zoom-in duration-500 space-y-4">
+            <div className={`${predictedGrade.bg} border ${predictedGrade.border} rounded-3xl p-6 text-center shadow-sm`}>
+              <p className="text-[11px] font-bold text-slate-500 mb-1">AI 예상 장기요양등급</p>
+              <div className={`text-4xl font-black ${predictedGrade.color} mb-2`}>{predictedGrade.grade}</div>
+              <p className="text-xs text-slate-700 font-bold leading-relaxed">{predictedGrade.desc}</p>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-3">
+              <h4 className="text-xs font-extrabold text-slate-800">📌 다음 단계 추천</h4>
+              {[
+                { icon: '📋', text: '장기요양등급 신청 가이드 확인하기', action: () => { setActiveSection('guide'); setShowResult(false); } },
+                { icon: '🔍', text: '내 지역 요양시설/요양보호사 찾아보기', href: '/caregiver/find' },
+                { icon: '💰', text: '정확한 월 비용 계산하기', href: '/caregiver/calculator' },
+              ].map(item => (
+                item.href ? (
+                  <Link key={item.text} href={item.href}
+                    className="flex items-center gap-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all group"
+                  >
+                    <span className="text-base">{item.icon}</span>
+                    <span className="text-xs font-bold text-slate-700 flex-grow">{item.text}</span>
+                    <ChevronRightIcon className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+                  </Link>
+                ) : (
+                  <button key={item.text} onClick={item.action}
+                    className="w-full flex items-center gap-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all group text-left"
+                  >
+                    <span className="text-base">{item.icon}</span>
+                    <span className="text-xs font-bold text-slate-700 flex-grow">{item.text}</span>
+                    <ChevronRightIcon className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+                  </button>
+                )
+              ))}
+            </div>
+
+            <button
+              onClick={() => { setAnswers({}); setShowResult(false); }}
+              className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all"
+            >
+              다시 예측하기
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
