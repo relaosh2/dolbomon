@@ -1,0 +1,67 @@
+#!/usr/bin/expect -f
+set timeout -1
+set password "Djflsdl21!"
+
+puts "\n=== Logging in to NAS to start Docker service and deploy ===\n"
+
+spawn ssh -p 8022 -o StrictHostKeyChecking=no shoh@192.168.219.118
+
+expect "*assword:*" {
+    send "$password\r"
+}
+
+expect -re {[$%>] } {
+    send "sudo -i\r"
+}
+
+expect {
+    "*assword*" {
+        send "$password\r"
+        exp_continue
+    }
+    -re {[#] } {
+        # Try to start Docker service using synopkg (official Synology CLI)
+        puts "\n=== Attempting to start Synology Docker / Container Manager package ===\n"
+        send "synopkg start ContainerManager || synopkg start Docker || systemctl start pkg-ContainerManager.service || systemctl start pkg-Docker.service || true\r"
+    }
+}
+
+expect -re {[#] } {
+    # Wait 8 seconds for Docker daemon and socket to fully start up
+    send "sleep 8\r"
+}
+
+expect -re {[#] } {
+    # Check if docker daemon is running
+    send "docker ps\r"
+}
+
+expect {
+    "Cannot connect" {
+        puts "\n(ERROR) Failed to start Docker service. Please check Synology DSM Package Center to see if Container Manager / Docker is installed and enabled.\n"
+        send "exit\r"
+        expect -re {[$%>] } { send "exit\r" }
+        exit 1
+    }
+    -re {CONTAINER ID} {
+        puts "\n=== Docker service started successfully! Proceeding with deployment... ===\n"
+        send "cd /var/services/homes/shoh/caregiver-os-app\r"
+      
+        # Trigger build and run
+        expect -re {[#] } {
+            send "docker-compose down 2>/dev/null || true\r"
+        }
+        expect -re {[#] } {
+            send "docker-compose up -d --build\r"
+        }
+        expect -re {[#] } {
+            send "exit\r"
+        }
+        expect -re {[$%>] } {
+            send "exit\r"
+        }
+    }
+}
+
+expect eof
+puts "\n=== NAS Deployment Script Finished ===\n"

@@ -1,0 +1,11 @@
+services:
+  caregiver-os:
+    build: .
+    container_name: caregiver-os
+    restart: always
+    ports:
+      - "8080:3000" # 외부 접속 포트 (포트 충돌 시 8080 부분을 원하는 포트로 변경 가능)
+    volumes:
+      - ./data:/app/data # SQLite 데이터베이스의 영구 보존을 위한 볼륨 바인딩
+    environment:
+      - NODE_ENV=production

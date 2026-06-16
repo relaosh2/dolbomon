@@ -480,6 +480,9 @@ catalogs:
     react-i18next:
       specifier: 16.6.6
       version: 16.6.6
+    react-markdown:
+      specifier: 10.1.0
+      version: 10.1.0
     react-multi-email:
       specifier: 1.0.25
       version: 1.0.25
@@ -610,7 +613,7 @@ importers:
     devDependencies:
       '@antfu/eslint-config':
         specifier: 'catalog:'
-        version: 9.0.0(@eslint-react/eslint-plugin@5.8.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@next/eslint-plugin-next@16.2.6)(@types/node@25.9.1)(@typescript-eslint/typescript-estree@8.59.4(typescript@6.0.3))(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@vitest/coverage-v8@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.27.2)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.27.2)(eslint-plugin-react-refresh@0.5.2(eslint@10.4.0(jiti@2.7.0)))(eslint@10.4.0(jiti@2.7.0))(happy-dom@20.9.0)(jiti@2.7.0)(oxlint@1.63.0(oxlint-tsgolint@0.22.1))(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)
+        version: 9.0.0(@eslint-react/eslint-plugin@5.8.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@next/eslint-plugin-next@16.2.6)(@typescript-eslint/typescript-estree@8.59.4(typescript@6.0.3))(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@voidzero-dev/vite-plus-test@0.1.22)(eslint-plugin-react-refresh@0.5.2(eslint@10.4.0(jiti@2.7.0)))(eslint@10.4.0(jiti@2.7.0))(oxlint@1.63.0(oxlint-tsgolint@0.22.1))(typescript@6.0.3)
       concurrently:
         specifier: 'catalog:'
         version: 9.2.1
@@ -1215,6 +1218,9 @@ importers:
       react-i18next:
         specifier: 'catalog:'
         version: 16.6.6(i18next@26.2.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
+      react-markdown:
+        specifier: 'catalog:'
+        version: 10.1.0(@types/react@19.2.15)(react@19.2.6)
       react-multi-email:
         specifier: 'catalog:'
         version: 1.0.25(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -1287,7 +1293,7 @@ importers:
     devDependencies:
       '@antfu/eslint-config':
         specifier: 'catalog:'
-        version: 9.0.0(@eslint-react/eslint-plugin@5.8.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@next/eslint-plugin-next@16.2.6)(@types/node@25.9.1)(@typescript-eslint/typescript-estree@8.59.4(typescript@6.0.3))(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@vitest/coverage-v8@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.27.2)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.27.2)(eslint-plugin-react-refresh@0.5.2(eslint@10.4.0(jiti@2.7.0)))(eslint@10.4.0(jiti@2.7.0))(happy-dom@20.9.0)(jiti@2.7.0)(oxlint@1.63.0(oxlint-tsgolint@0.22.1))(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)
+        version: 9.0.0(@eslint-react/eslint-plugin@5.8.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@next/eslint-plugin-next@16.2.6)(@typescript-eslint/typescript-estree@8.59.4(typescript@6.0.3))(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@voidzero-dev/vite-plus-test@0.1.22)(eslint-plugin-react-refresh@0.5.2(eslint@10.4.0(jiti@2.7.0)))(eslint@10.4.0(jiti@2.7.0))(oxlint@1.63.0(oxlint-tsgolint@0.22.1))(typescript@6.0.3)
       '@chromatic-com/storybook':
         specifier: 'catalog:'
         version: 5.2.1(storybook@10.4.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.1)(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite-plus@0.1.22(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.27.2)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.27.2)(happy-dom@20.9.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)))
@@ -5036,10 +5042,13 @@ packages:
       '@typescript-eslint/eslint-plugin': '*'
       eslint: '>=8.57.0'
       typescript: '>=5.0.0'
+      vitest: '*'
     peerDependenciesMeta:
       '@typescript-eslint/eslint-plugin':
         optional: true
       typescript:
+        optional: true
+      vitest:
         optional: true
 
   '@vitest/expect@3.2.4':
@@ -8115,6 +8124,12 @@ packages:
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
 
+  react-markdown@10.1.0:
+    resolution: {integrity: sha512-qKxVopLT/TyA6BX3Ue5NwabOsAzm0Q7kAPwq6L+wWDwisYs7R8vZ0nRXqq6rkueboxpkjvLGU9fWifiX/ZZFxQ==}
+    peerDependencies:
+      '@types/react': '>=18'
+      react: '>=18'
+
   react-multi-email@1.0.25:
     resolution: {integrity: sha512-Wmv28FvIk4nWgdpHzlIPonY4iSs7bPV35+fAiWYzSBhTo+vhXfglEhjY1WnjHQINW/Pibu2xlb/q1heVuytQHQ==}
     peerDependencies:
@@ -9465,7 +9480,7 @@ snapshots:
       idb: 8.0.0
       tslib: 2.8.1
 
-  '@antfu/eslint-config@9.0.0(@eslint-react/eslint-plugin@5.8.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@next/eslint-plugin-next@16.2.6)(@types/node@25.9.1)(@typescript-eslint/typescript-estree@8.59.4(typescript@6.0.3))(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@vitest/coverage-v8@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.27.2)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.27.2)(eslint-plugin-react-refresh@0.5.2(eslint@10.4.0(jiti@2.7.0)))(eslint@10.4.0(jiti@2.7.0))(happy-dom@20.9.0)(jiti@2.7.0)(oxlint@1.63.0(oxlint-tsgolint@0.22.1))(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)':
+  '@antfu/eslint-config@9.0.0(@eslint-react/eslint-plugin@5.8.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@next/eslint-plugin-next@16.2.6)(@typescript-eslint/typescript-estree@8.59.4(typescript@6.0.3))(@typescript-eslint/utils@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@voidzero-dev/vite-plus-test@0.1.22)(eslint-plugin-react-refresh@0.5.2(eslint@10.4.0(jiti@2.7.0)))(eslint@10.4.0(jiti@2.7.0))(oxlint@1.63.0(oxlint-tsgolint@0.22.1))(typescript@6.0.3)':
     dependencies:
       '@antfu/install-pkg': 1.1.0
       '@clack/prompts': 1.4.0
@@ -9475,7 +9490,7 @@ snapshots:
       '@stylistic/eslint-plugin': 5.10.0(eslint@10.4.0(jiti@2.7.0))
       '@typescript-eslint/eslint-plugin': 8.59.4(@typescript-eslint/parser@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
       '@typescript-eslint/parser': 8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
-      '@vitest/eslint-plugin': 1.6.17(@types/node@25.9.1)(@typescript-eslint/eslint-plugin@8.59.4(@typescript-eslint/parser@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@vitest/coverage-v8@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.27.2)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.27.2)(eslint@10.4.0(jiti@2.7.0))(happy-dom@20.9.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)
+      '@vitest/eslint-plugin': 1.6.17(@typescript-eslint/eslint-plugin@8.59.4(@typescript-eslint/parser@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@voidzero-dev/vite-plus-test@0.1.22)(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
       ansis: 4.3.0
       cac: 7.0.0
       eslint: 10.4.0(jiti@2.7.0)
@@ -9509,43 +9524,16 @@ snapshots:
       '@next/eslint-plugin-next': 16.2.6
       eslint-plugin-react-refresh: 0.5.2(eslint@10.4.0(jiti@2.7.0))
     transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@edge-runtime/vm'
       - '@eslint/json'
-      - '@opentelemetry/api'
-      - '@tsdown/css'
-      - '@tsdown/exe'
-      - '@types/node'
       - '@typescript-eslint/rule-tester'
       - '@typescript-eslint/typescript-estree'
       - '@typescript-eslint/utils'
-      - '@vitejs/devtools'
-      - '@vitest/coverage-istanbul'
-      - '@vitest/coverage-v8'
-      - '@vitest/ui'
       - '@vue/compiler-sfc'
-      - bufferutil
-      - esbuild
-      - happy-dom
-      - jiti
-      - jsdom
-      - less
       - oxlint
-      - publint
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
       - supports-color
-      - terser
       - ts-declaration-location
-      - tsx
       - typescript
-      - unplugin-unused
-      - unrun
-      - utf-8-validate
-      - vite
-      - yaml
+      - vitest
 
   '@antfu/install-pkg@1.1.0':
     dependencies:
@@ -12706,45 +12694,17 @@ snapshots:
     optionalDependencies:
       '@vitest/browser': 4.1.7(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.27.2)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.27.2)(happy-dom@20.9.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)
 
-  '@vitest/eslint-plugin@1.6.17(@types/node@25.9.1)(@typescript-eslint/eslint-plugin@8.59.4(@typescript-eslint/parser@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@vitest/coverage-v8@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.27.2)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.27.2)(eslint@10.4.0(jiti@2.7.0))(happy-dom@20.9.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)':
+  '@vitest/eslint-plugin@1.6.17(@typescript-eslint/eslint-plugin@8.59.4(@typescript-eslint/parser@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(@voidzero-dev/vite-plus-test@0.1.22)(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.59.4
       '@typescript-eslint/utils': 8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
       eslint: 10.4.0(jiti@2.7.0)
-      vitest: '@voidzero-dev/vite-plus-test@0.1.22(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.27.2)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.27.2)(happy-dom@20.9.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)'
     optionalDependencies:
       '@typescript-eslint/eslint-plugin': 8.59.4(@typescript-eslint/parser@8.59.4(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
       typescript: 6.0.3
+      vitest: '@voidzero-dev/vite-plus-test@0.1.22(@types/node@25.9.1)(@vitest/coverage-v8@4.1.7)(@voidzero-dev/vite-plus-core@0.1.22(@types/node@25.9.1)(esbuild@0.27.2)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.27.2)(happy-dom@20.9.0)(jiti@2.7.0)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0)'
     transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@edge-runtime/vm'
-      - '@opentelemetry/api'
-      - '@tsdown/css'
-      - '@tsdown/exe'
-      - '@types/node'
-      - '@vitejs/devtools'
-      - '@vitest/coverage-istanbul'
-      - '@vitest/coverage-v8'
-      - '@vitest/ui'
-      - bufferutil
-      - esbuild
-      - happy-dom
-      - jiti
-      - jsdom
-      - less
-      - publint
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
       - supports-color
-      - terser
-      - tsx
-      - unplugin-unused
-      - unrun
-      - utf-8-validate
-      - vite
-      - yaml
 
   '@vitest/expect@3.2.4':
     dependencies:
@@ -16259,6 +16219,24 @@ snapshots:
 
   react-is@17.0.2: {}
 
+  react-markdown@10.1.0(@types/react@19.2.15)(react@19.2.6):
+    dependencies:
+      '@types/hast': 3.0.4
+      '@types/mdast': 4.0.4
+      '@types/react': 19.2.15
+      devlop: 1.1.0
+      hast-util-to-jsx-runtime: 2.3.6
+      html-url-attributes: 3.0.1
+      mdast-util-to-hast: 13.2.1
+      react: 19.2.6
+      remark-parse: 11.0.0
+      remark-rehype: 11.1.2
+      unified: 11.0.5
+      unist-util-visit: 5.1.0
+      vfile: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
   react-multi-email@1.0.25(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
       react: 19.2.6
@@ -17747,6 +17725,7 @@ time:
   react-dom@19.2.6: '2026-05-06T16:16:56.080Z'
   react-easy-crop@5.5.7: '2026-03-24T09:41:01.114Z'
   react-i18next@16.6.6: '2026-03-24T15:35:20.832Z'
+  react-markdown@10.1.0: '2025-03-07T10:32:53.222Z'
   react-multi-email@1.0.25: '2024-07-18T04:31:06.176Z'
   react-papaparse@4.4.0: '2023-10-13T10:27:07.978Z'
   react-pdf-highlighter@8.0.0-rc.0: '2024-09-14T16:57:58.673Z'

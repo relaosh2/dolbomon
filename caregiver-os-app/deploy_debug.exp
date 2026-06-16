@@ -1,0 +1,63 @@
+#!/usr/bin/expect -f
+set timeout 30
+set password "Djflsdl21!"
+exp_internal 1
+
+puts "\n=== Debug SSH login to Synology NAS ===\n"
+spawn ssh -p 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null shoh@192.168.219.118
+
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    -re {[$%>] } {
+        send "echo 'Login Successful!' && sudo -i\r"
+    }
+    timeout {
+        puts "\n(ERROR) SSH connection timed out.\n"
+        exit 1
+    }
+}
+
+expect {
+    "*assword*" {
+        send "$password\r"
+        exp_continue
+    }
+    -re {[#] } {
+        send "echo 'Root shell gained!' && docker ps\r"
+    }
+    timeout {
+        puts "\n(ERROR) Sudo timed out.\n"
+        exit 1
+    }
+}
+
+expect {
+    "Cannot connect" {
+        puts "\n=== Docker daemon NOT running. Attempting to start... ===\n"
+        send "synopkg start ContainerManager || synopkg start Docker || systemctl start pkg-ContainerManager.service || systemctl start pkg-Docker.service || true\r"
+        expect -re {[#] }
+        send "sleep 8 && docker ps\r"
+        exp_continue
+    }
+    -re {CONTAINER ID} {
+        puts "\n=== Docker is running! Deploying... ===\n"
+        send "cd /var/services/homes/shoh/caregiver-os-app && docker-compose down 2>/dev/null || true\r"
+        expect -re {[#] }
+        send "docker-compose up -d --build\r"
+        expect -re {[#] }
+        send "exit\r"
+    }
+    timeout {
+        puts "\n(ERROR) Docker check timed out.\n"
+        exit 1
+    }
+}
+
+expect -re {[$%>] } {
+    send "exit\r"
+}
+expect eof
+puts "\n=== Debug Script Finished ===\n"

@@ -1,0 +1,21 @@
+#!/usr/bin/expect -f
+set timeout 10
+spawn ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 8022 shoh@192.168.219.118 "echo hello"
+expect {
+    -re ".*assword:.*" {
+        send "Djflsdl12!\r"
+        exp_continue
+    }
+    -re ".*비밀번호:.*" {
+        send "Djflsdl12!\r"
+        exp_continue
+    }
+    timeout {
+        puts "TIMED OUT"
+        exit 1
+    }
+    eof {
+        puts "EOF"
+        exit 0
+    }
+}

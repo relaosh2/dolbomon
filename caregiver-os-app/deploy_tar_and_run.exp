@@ -1,0 +1,60 @@
+#!/usr/bin/expect -f
+set timeout -1
+set password "Djflsdl21!"
+
+# Step 1: SCP the tarball
+puts "\n=== Step 1: SCP caregiver-os-app.tar.gz to Synology NAS ===\n"
+spawn scp -O -o RequestTTY=force -P 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /Users/oseongho/Desktop/antigravity-platform/caregiver-os-app.tar.gz shoh@192.168.219.118:/var/services/homes/shoh/
+expect "*assword:*" {
+    send "$password\r"
+}
+expect eof
+
+# Step 2: SSH to extract and run
+puts "\n=== Step 2: SSH into NAS to deploy ===\n"
+spawn ssh -p 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null shoh@192.168.219.118
+expect "*assword:*" {
+    send "$password\r"
+}
+
+expect -re {[$%>] } {
+    send "mkdir -p /var/services/homes/shoh/caregiver-os-app && tar -xzf /var/services/homes/shoh/caregiver-os-app.tar.gz -C /var/services/homes/shoh/caregiver-os-app --strip-components=1 && rm /var/services/homes/shoh/caregiver-os-app.tar.gz\r"
+}
+
+expect -re {[$%>] } {
+    send "sudo -i\r"
+}
+
+expect {
+    "*assword*" {
+        send "$password\r"
+        exp_continue
+    }
+    -re {[#] } {
+        puts "\n=== Step 3: Checking and Starting Container Manager/Docker ===\n"
+        send "synopkg start ContainerManager || synopkg start Docker || systemctl start pkg-ContainerManager.service || systemctl start pkg-Docker.service || true\r"
+    }
+}
+
+expect -re {[#] } {
+    send "sleep 6\r"
+}
+
+expect -re {[#] } {
+    send "cd /var/services/homes/shoh/caregiver-os-app && docker-compose down 2>/dev/null || true\r"
+}
+
+expect -re {[#] } {
+    send "docker-compose up -d --build\r"
+}
+
+expect -re {[#] } {
+    send "exit\r"
+}
+
+expect -re {[$%>] } {
+    send "exit\r"
+}
+
+expect eof
+puts "\n=== Deployment Finished! ===\n"

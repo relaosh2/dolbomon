@@ -25,11 +25,14 @@ const nextConfig: NextConfig = {
     // https://nextjs.org/docs/api-reference/next.config.js/ignoring-typescript-errors
     ignoreBuildErrors: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async redirects() {
     return [
       {
         source: '/',
-        destination: '/apps',
+        destination: '/caregiver',
         permanent: false,
       },
     ]

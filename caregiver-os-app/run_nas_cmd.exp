@@ -1,0 +1,55 @@
+#!/usr/bin/expect -f
+set timeout 30
+set password "Djflsdl21!"
+set cmd [lindex $argv 0]
+
+if {$cmd == ""} {
+    puts "Usage: ./run_nas_cmd.exp <command>"
+    exit 1
+}
+
+spawn ssh -p 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null shoh@192.168.219.118
+
+expect {
+    "*assword:*" {
+        send "$password\r"
+    }
+    timeout {
+        puts "Timeout waiting for SSH password prompt"
+        exit 1
+    }
+}
+
+expect {
+    -re {[$%>] } {
+        send "sudo -i\r"
+    }
+    timeout {
+        puts "Timeout waiting for user prompt"
+        exit 1
+    }
+}
+
+expect {
+    "*assword*" {
+        send "$password\r"
+        exp_continue
+    }
+    -re {[#] } {
+        send "$cmd\r"
+    }
+    timeout {
+        puts "Timeout waiting for root prompt"
+        exit 1
+    }
+}
+
+expect -re {[#] } {
+    send "exit\r"
+}
+
+expect -re {[$%>] } {
+    send "exit\r"
+}
+
+expect eof

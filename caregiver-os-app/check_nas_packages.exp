@@ -1,0 +1,19 @@
+#!/usr/bin/expect -f
+set timeout -1
+set password "Djflsdl21!"
+
+spawn ssh -p 8022 -o StrictHostKeyChecking=no shoh@192.168.219.118
+
+expect "*assword:*" {
+    send "$password\r"
+}
+
+expect -re {[$%>] } {
+    send "synopkg list\r"
+}
+
+expect -re {[$%>] } {
+    send "exit\r"
+}
+
+expect eof

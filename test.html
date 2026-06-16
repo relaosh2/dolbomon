@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>돌봄온 - 장기요양등급 모의 예측 시스템</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background-color: #f8fafc; padding: 20px; display: flex; justify-content: center; }
+        .container { background: white; padding: 35px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 650px; border-top: 6px solid #4f46e5; }
+        h2 { color: #1e293b; text-align: center; margin-top: 0; margin-bottom: 25px; font-size: 24px; letter-spacing: -0.5px; }
+        .section-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 25px; margin-bottom: 12px; display: flex; align-items: center; }
+        .checkbox-group { background: #f1f5f9; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .checkbox-item { display: flex; align-items: flex-start; margin-bottom: 12px; cursor: pointer; font-size: 14px; color: #334155; line-height: 1.4; }
+        .checkbox-item:last-child { margin-bottom: 0; }
+        .checkbox-item input { margin-top: 3px; margin-right: 10px; width: 16px; height: 16px; cursor: pointer; }
+        
+        /* 버튼 스타일 */
+        .btn-container { display: flex; gap: 10px; margin-top: 25px; }
+        .btn-submit { flex: 2; padding: 15px; background-color: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-submit:hover { background-color: #4338ca; }
+        .btn-pdf { flex: 1; padding: 15px; background-color: #10b981; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; display: none; text-align: center; }
+        .btn-pdf:hover { background-color: #059669; }
+
+        .loading { display: none; text-align: center; color: #64748b; margin-top: 20px; font-size: 14px; font-weight: bold; }
+        
+        /* 결과 보고서 서식 */
+        #result-box { margin-top: 30px; padding: 30px; background-color: #fff; border: 2px solid #4f46e5; border-radius: 12px; display: none; line-height: 1.8; color: #334155; font-size: 14px; }
+        .report-header { text-align: center; margin-bottom: 25px; border-bottom: 1px dashed #4f46e5; padding-bottom: 15px; }
+        .report-title { font-size: 20px; font-weight: bold; color: #1e293b; margin: 0; }
+        .report-meta { text-align: right; font-size: 12px; color: #64748b; margin-top: 10px; }
+        
+        /* 마크다운 스타일 */
+        #markdown-body h3 { color: #4f46e5; font-size: 16px; margin-top: 25px; margin-bottom: 10px; padding-left: 0; font-weight: bold; }
+        #markdown-body h3:first-of-type { margin-top: 0; }
+        #markdown-body ul, #markdown-body ol { padding-left: 20px; margin-bottom: 15px; }
+        #markdown-body li { margin-bottom: 6px; }
+        #markdown-body hr { border: 0; height: 1px; background: #cbd5e1; margin: 20px 0; }
+        #markdown-body strong { color: #4f46e5; background-color: #f0fdf4; padding: 2px 6px; border-radius: 4px; font-weight: bold; border: 1px solid #bbf7d0; }
+
+        /* 프린트 스타일 */
+        @media print {
+            body { background: white; padding: 0; display: block; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; border-top: none; }
+            h2, .section-title, .checkbox-group, .btn-container, .loading { display: none !important; }
+            #result-box { display: block !important; border: 2px solid #000; padding: 40px; margin-top: 0; box-shadow: none; }
+            #markdown-body h3 { color: #000; border-bottom: 1px solid #000; padding-bottom: 4px; }
+            #markdown-body strong { background: none; color: #000; font-weight: bold; border: none; padding: 0; border-bottom: 1px dashed #000; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🏠 돌봄온 장기요양 등급 모의 예측</h2>
+    
+    <div class="section-title">💡 신체 기능 및 거동 상태 (중복 선택 가능)</div>
+    <div class="checkbox-group">
+        <label class="checkbox-item"><input type="checkbox" name="mobility" value="스스로 일어나거나 걷지 못하고 침대에 완전히 누워 지내심"> 1. 스스로 일어나지 못하고 주로 침대에 누워만 계십니다.</label>
+        <label class="checkbox-item"><input type="checkbox" name="mobility" value="방 밖으로 이동 시 반드시 휠체어나 타인의 전적인 보조가 필요함"> 2. 실내외 이동 시 반드시 휠체어를 타거나 전적인 도움이 필요합니다.</label>
+        <label class="checkbox-item"><input type="checkbox" name="mobility" value="세수, 목욕, 옷 입기, 화장실 이용 등 일상생활 위생 동작을 전혀 혼자 못하심"> 3. 식사, 세수, 화장실 이용 등 일상생활을 혼자 전혀 못 하십니다.</label>
+        <label class="checkbox-item"><input type="checkbox" name="mobility" value="지팡이나 보행기를 짚고 겨우 중심을 잡으나 낙상 위험이 매우 큼"> 4. 보행기에 의존해 간신히 걸으시며 낙상 위험이 매우 높습니다.</label>
+    </div>
+
+    <div class="section-title">🧠 인지 기능 및 행동 변화 (중복 선택 가능)</div>
+    <div class="checkbox-group">
+        <label class="checkbox-item"><input type="checkbox" name="cognitive" value="방금 전 일이나 약 복용 여부를 기억하지 못하는 단기 기억 장애가 심각함"> 1. 방금 전 일이나 며칠 전 기억을 전혀 하지 못하십니다.</label>
+        <label class="checkbox-item"><input type="checkbox" name="cognitive" value="자녀나 직계 가족의 얼굴과 이름을 가끔 알아보지 못하고 헷갈려하심"> 2. 자녀나 배우자 등 가까운 가족을 가끔 못 알아보십니다.</label>
+        <label class="checkbox-item"><input type="checkbox" name="cognitive" value="야간에 수면을 취하지 않고 집안을 배회하거나 밖으로 나가려 하는 문제 행동이 있음"> 3. 밤에 잠을 안 자고 서성거리거나 자꾸 밖으로 나가려 하십니다.</label>
+        <label class="checkbox-item"><input type="checkbox" name="cognitive" value="이유 없이 화를 내거나 폭언을 하고 누군가 물건을 훔쳐갔다고 의심하는 망상 증세가 있음"> 4. 훔쳐갔다는 의심을 하거나 공격성을 보이십니다.</label>
+    </div>
+    
+    <div class="btn-container">
+        <button class="btn-submit" onclick="runPredict()">📋 스마트 등급 예측 결과 보기</button>
+        <button class="btn-pdf" id="pdf-btn" onclick="window.print()">🖨️ 결과서 인쇄 / PDF 저장</button>
+    </div>
+    
+    <div class="loading" id="loading-txt">⏳ 돌봄온 AI 분석 엔진이 정밀 요양등급 시뮬레이션을 진행 중입니다...</div>
+    
+    <div id="result-box">
+        <div class="report-header">
+            <div class="report-title">장기요양등급 모의 예측 결과 보고서</div>
+            <div class="report-meta" id="report-date-str">발행일자: 2026. 05. 29</div>
+        </div>
+        <div id="markdown-body"></div>
+    </div>
+</div>
+
+<script>
+async function runPredict() {
+    const loadingTxt = document.getElementById('loading-txt');
+    const resultBox = document.getElementById('result-box');
+    const markdownBody = document.getElementById('markdown-body');
+    const pdfBtn = document.getElementById('pdf-btn');
+    const dateStr = document.getElementById('report-date-str');
+
+    const now = new Date();
+    dateStr.innerText = `발행일자: ${now.getFullYear()}. ${String(now.getMonth()+1).padStart(2, '0')}. ${String(now.getDate()).padStart(2, '0')}`;
+
+    const selectedMobility = Array.from(document.querySelectorAll('input[name="mobility"]:checked')).map(cb => cb.value);
+    const selectedCognitive = Array.from(document.querySelectorAll('input[name="cognitive"]:checked')).map(cb => cb.value);
+
+    if(selectedMobility.length === 0 && selectedCognitive.length === 0) {
+        alert("어르신의 상태 항목을 최소 한 개 이상 선택해 주세요!");
+        return;
+    }
+
+    // ⚖️ [대장님 전용 저울 필터] 프로그램단에서 개수를 정확히 세어 등급 문자열을 추출합니다.
+    const totalCount = selectedMobility.length + selectedCognitive.length;
+    let calculatedGrade = "";
+
+    if (totalCount >= 5) {
+        calculatedGrade = "장기요양 1등급 (최중증)";
+    } else if (totalCount >= 3) {
+        calculatedGrade = "장기요양 2등급 (중증)";
+    } else if (totalCount === 2) {
+        calculatedGrade = "장기요양 3~4등급 (중등증)";
+    } else {
+        calculatedGrade = "장기요양 5등급 또는 인지지원등급 (경증)";
+    }
+
+    const mobilityText = selectedMobility.length > 0 ? selectedMobility.join(", ") : "해당 없음";
+    const cognitiveText = selectedCognitive.length > 0 ? selectedCognitive.join(", ") : "해당 없음";
+
+    loadingTxt.style.display = "block";
+    resultBox.style.display = "none";
+    pdfBtn.style.display = "none";
+    markdownBody.innerHTML = ""; 
+
+    const URL = "http://localhost/v1/workflows/run"; 
+    const API_KEY = "app-g41ydMQjOIW5oKQT7MyjFTk7"; 
+
+    try {
+        const response = await fetch(URL, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                inputs: {
+                    mobility: mobilityText,
+                    cognitive: cognitiveText,
+                    calculated_grade: calculatedGrade // 🚨 디파이 백엔드로 연산된 등급 팩트 폭격 전달!
+                },
+                response_mode: "blocking",
+                user: "dolbom-on-master-seongho"
+            })
+        });
+
+        const resultData = await response.json();
+        
+        if (!response.ok) {
+            alert("⚠️ 디파이 서버 에러 발생!\n코드: " + response.status + "\n내용: " + JSON.stringify(resultData));
+            markdownBody.innerHTML = `<p style='color:red;'>서버 에러 발생: ${resultData.message || '오류'}</p>`;
+            resultBox.style.display = "block";
+            return;
+        }
+
+        if (resultData && resultData.data && resultData.data.outputs) {
+            const report = resultData.data.outputs.result;
+            if (report) {
+                markdownBody.innerHTML = marked.parse(report);
+                resultBox.style.display = "block";
+                pdfBtn.style.display = "block";
+            } else {
+                alert("⚠️ 응답 구조에 'result'가 없습니다!\n전체 데이터 구조:\n" + JSON.stringify(resultData, null, 2));
+                resultBox.style.display = "block";
+            }
+        } else {
+            alert("⚠️ 디파이가 예상치 못한 껍데기를 보냈습니다:\n" + JSON.stringify(resultData, null, 2));
+            resultBox.style.display = "block";
+        }
+
+    } catch (error) {
+        alert("⚠️ 브라우저 통신 실패:\n" + error.message);
+        resultBox.style.display = "block";
+    } finally {
+        loadingTxt.style.display = "none";
+    }
+}
+</script>
+</body>
+</html>

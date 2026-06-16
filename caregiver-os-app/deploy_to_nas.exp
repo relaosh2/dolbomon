@@ -1,0 +1,60 @@
+#!/usr/bin/expect -f
+set timeout -1
+set password "Djflsdl21!"
+
+puts "\n=== Step 1: Packaging and streaming caregiver-os-app to NAS via SSH ===\n"
+
+# Stream the tarball over SSH and extract it directly on the NAS
+spawn bash -c "tar -czf - --exclude=node_modules --exclude=.next --exclude=.git -C /Users/oseongho/Desktop/antigravity-platform caregiver-os-app | ssh -p 8022 -o StrictHostKeyChecking=no shoh@192.168.219.118 \"mkdir -p /var/services/homes/shoh/caregiver-os-app && tar -xzf - -C /var/services/homes/shoh/caregiver-os-app --strip-components=1\""
+
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    eof {
+        puts "\n=== File transfer and extraction finished ===\n"
+    }
+}
+
+puts "\n=== Step 2: Logging in to NAS to build and deploy Docker container ===\n"
+
+spawn ssh -p 8022 -o StrictHostKeyChecking=no shoh@192.168.219.118
+
+expect "*assword:*" {
+    send "$password\r"
+}
+
+expect -re {[$%>] } {
+    send "sudo -i\r"
+}
+
+expect {
+    "*assword*" {
+        send "$password\r"
+        exp_continue
+    }
+    -re {[#] } {
+        send "cd /var/services/homes/shoh/caregiver-os-app\r"
+    }
+}
+
+expect -re {[#] } {
+    puts "\n=== Stopping old container (if any) and building new one ===\n"
+    send "docker-compose down 2>/dev/null || true\r"
+}
+
+expect -re {[#] } {
+    send "docker-compose up -d --build\r"
+}
+
+expect -re {[#] } {
+    send "exit\r"
+}
+
+expect -re {[$%>] } {
+    send "exit\r"
+}
+
+expect eof
+puts "\n=== Deployment Completed Successfully! ===\n"

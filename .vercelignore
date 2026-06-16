@@ -1,0 +1,12 @@
+/out/
+/caregiver-os-app.tar.gz
+/caregiver-os-app/
+/caregiver-os-android/
+/api/
+/docker/
+/dify-agent/
+/docs/
+/.git/
+/node_modules/
+/.next/
+/web/.next/
