@@ -13,11 +13,11 @@ export default function LoginPage() {
     setTimeout(() => {
       // 인증 성공을 가정하고 로컬 스토리지에 토큰/상태 저장
       if (typeof window !== 'undefined') {
-        localStorage.setItem('caregiver_user_token', 'mock_token_12345');
-        localStorage.setItem('caregiver_user_provider', type);
+        localStorage.setItem('dolbomon_user_token', 'mock_token_12345');
+        localStorage.setItem('dolbomon_user_provider', type);
         
         // 메인 대시보드로 리다이렉트
-        window.location.href = '/caregiver';
+        window.location.href = '/dolbomon';
       }
     }, 1500);
   };

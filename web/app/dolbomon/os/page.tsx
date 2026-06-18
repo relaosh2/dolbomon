@@ -36,10 +36,10 @@ export default function FamilyOSDashboard() {
   const splitAmount = expenseItem.amount / FAMILY_MEMBERS.length; // 100,000
 
   const handleRequireAuth = () => {
-    const token = localStorage.getItem('caregiver_user_token');
+    const token = localStorage.getItem('dolbomon_user_token');
     if (!token) {
       alert('일정 등록 및 담당자 지정을 위해서는 가족 계정 로그인이 필요합니다. 3초 만에 간편 로그인하세요!');
-      window.location.href = '/caregiver/login';
+      window.location.href = '/dolbomon/login';
       return false;
     }
     return true;
@@ -64,17 +64,17 @@ export default function FamilyOSDashboard() {
       {/* Header (공통 스타일 유지) */}
       <header className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 z-50">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => window.location.href='/caregiver'}>
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => window.location.href='/dolbomon'}>
             <HeartIcon className="w-8 h-8 text-rose-500" />
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-indigo-600">
               가족돌봄OS
             </span>
           </div>
           <nav className="hidden md:flex space-x-8 text-sm font-medium text-slate-600 items-center">
-            <a href="/caregiver" className="hover:text-indigo-600 transition-colors">장기요양계산기</a>
-            <a href="/caregiver/mission" className="hover:text-indigo-600 transition-colors">자녀효도퀘스트</a>
+            <a href="/dolbomon" className="hover:text-indigo-600 transition-colors">장기요양계산기</a>
+            <a href="/dolbomon/mission" className="hover:text-indigo-600 transition-colors">자녀효도퀘스트</a>
             <span className="font-semibold text-indigo-600">가족돌봄OS</span>
-            <a href="/caregiver/donate" className="text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-full border border-amber-200 transition-colors font-bold">☕ 커피응원</a>
+            <a href="/dolbomon/donate" className="text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-full border border-amber-200 transition-colors font-bold">☕ 커피응원</a>
           </nav>
         </div>
       </header>

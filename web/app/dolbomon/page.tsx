@@ -80,7 +80,7 @@ export default function HomePage() {
               ※ 본 결과는 <strong>참고용 자가진단</strong>이며 실제 등급은 국민건강보험공단 심사를 통해 결정됩니다.
             </p>
             <Link
-              href="/caregiver/calculator"
+              href="/dolbomon/calculator"
               className="w-full flex items-center justify-center gap-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-extrabold py-2.5 rounded-xl transition-all active:scale-[0.98]"
             >
               예상등급 자가진단 시작 <ChevronRightIcon className="w-3.5 h-3.5" />
@@ -98,7 +98,7 @@ export default function HomePage() {
               <p className="text-xs font-extrabold text-slate-800">놓치고 있는 지원금을 확인하세요</p>
               <p className="text-[10px] text-slate-400 font-medium mt-0.5">기초연금 · 장기요양급여 · 치매안심센터 무료서비스</p>
             </div>
-            <Link href="/caregiver/benefits">
+            <Link href="/dolbomon/benefits">
               <ChevronRightIcon className="w-4 h-4 text-slate-300" />
             </Link>
           </div>
@@ -138,7 +138,7 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-          <Link href="/caregiver/schedule" className="flex items-center justify-center gap-1 mt-3 text-[10px] text-indigo-500 font-extrabold">
+          <Link href="/dolbomon/schedule" className="flex items-center justify-center gap-1 mt-3 text-[10px] text-indigo-500 font-extrabold">
             전체 일정 보기 →
           </Link>
         </div>
@@ -178,7 +178,7 @@ export default function HomePage() {
             💡 이번 주 돌봄 업무가 많았습니다. 가족에게 도움을 요청해보세요.
           </p>
 
-          <Link href="/caregiver/me" className="flex items-center justify-center gap-1 mt-3 text-[10px] text-purple-500 font-extrabold">
+          <Link href="/dolbomon/me" className="flex items-center justify-center gap-1 mt-3 text-[10px] text-purple-500 font-extrabold">
             내 상태 자세히 확인하기 →
           </Link>
         </div>
@@ -205,7 +205,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <Link href="/caregiver/records" className="flex items-center justify-center gap-1 mt-3 text-[10px] text-emerald-600 font-extrabold">
+          <Link href="/dolbomon/records" className="flex items-center justify-center gap-1 mt-3 text-[10px] text-emerald-600 font-extrabold">
             전체 기록 보기 →
           </Link>
         </div>
