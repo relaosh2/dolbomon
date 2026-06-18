@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/',
-        destination: '/caregiver',
+        destination: '/dolbomon',
         permanent: false,
       },
     ]
