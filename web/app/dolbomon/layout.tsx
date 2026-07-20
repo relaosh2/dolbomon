@@ -74,7 +74,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         }}>
         <div className="flex items-center gap-2">
           <Link href="/dolbomon" className="cursor-pointer hover:opacity-90 active:scale-[0.98] transition-all">
-            <img src="/logo.svg" alt="돌봄온" className="h-[70px] w-auto object-contain" />
+            <img src="/logo.png" alt="돌봄온" className="h-[70px] w-auto object-contain" />
           </Link>
         </div>
         <span className="text-[15px] font-medium text-[#5B3DF5] bg-[#5B3DF5]/5 px-3 py-1.5 rounded-full tracking-tight select-none">
