@@ -67,13 +67,13 @@ export default function FamilyOSDashboard() {
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => window.location.href='/dolbomon'}>
             <HeartIcon className="w-8 h-8 text-rose-500" />
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-indigo-600">
-              가족돌봄OS
+              돌봄온
             </span>
           </div>
           <nav className="hidden md:flex space-x-8 text-sm font-medium text-slate-600 items-center">
             <a href="/dolbomon" className="hover:text-indigo-600 transition-colors">장기요양계산기</a>
             <a href="/dolbomon/mission" className="hover:text-indigo-600 transition-colors">자녀효도퀘스트</a>
-            <span className="font-semibold text-indigo-600">가족돌봄OS</span>
+            <span className="font-semibold text-indigo-600">돌봄온</span>
             <a href="/dolbomon/donate" className="text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-full border border-amber-200 transition-colors font-bold">☕ 커피응원</a>
           </nav>
         </div>
@@ -89,7 +89,7 @@ export default function FamilyOSDashboard() {
               <UserGroupIcon className="w-4 h-4" />
               <span>김씨네 가족돌봄방</span>
             </div>
-            <h1 className="text-2xl font-extrabold text-slate-900">대한민국 최초 AI 기반 가족돌봄OS</h1>
+            <h1 className="text-2xl font-extrabold text-slate-900">대한민국 최초 AI 기반 돌봄온</h1>
             <p className="text-sm text-slate-500 mt-1">참여 가족: {FAMILY_MEMBERS.map(m => m.name).join(', ')}</p>
           </div>
           <div className="hidden sm:flex -space-x-2 overflow-hidden">

@@ -12,7 +12,7 @@ export type CaregiverReportParams = {
 };
 
 /**
- * 가족돌봄OS 스트레스 진단기 AI 서버 액션
+ * 돌봄온 스트레스 진단기 AI 서버 액션
  * Dify Cloud API를 호출하여 AI 맞춤 처방 결과를 반환합니다.
  */
 export async function generateCaregiverReport(params: CaregiverReportParams): Promise<string> {
@@ -36,7 +36,7 @@ export async function generateCaregiverReport(params: CaregiverReportParams): Pr
 <hr class="my-8 border-slate-200" />
 
 <p class="font-bold text-indigo-700 text-lg mb-2">💡 AI 케어 코치의 한마디</p>
-<p class="text-slate-700 leading-relaxed">예상보다 큰 혜택, 더 이상 미루지 마시고 장기요양등급 신청을 준비하세요! 복잡한 행정 절차는 <strong>가족돌봄OS</strong>가 매월 캘린더로 챙겨드립니다.</p>
+<p class="text-slate-700 leading-relaxed">예상보다 큰 혜택, 더 이상 미루지 마시고 장기요양등급 신청을 준비하세요! 복잡한 행정 절차는 <strong>돌봄온</strong>이 매월 캘린더로 챙겨드립니다.</p>
   `;
 
   if (!apiKey) {

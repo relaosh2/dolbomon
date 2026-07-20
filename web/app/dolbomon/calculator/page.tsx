@@ -129,7 +129,7 @@ export default function CaregiverCalculator() {
                   나의 가족돌봄 비용은 얼마나 나올까요?
                 </h1>
                 <p className="text-base font-extrabold text-rose-500 mb-2 tracking-tight">
-                  "돌보는 사람이 무너지지 않게."
+                  "돌보는 사람이 무너지지 않게"
                 </p>
               </div>
 

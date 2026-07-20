@@ -38,7 +38,7 @@ export default function LoginPage() {
           <div className="flex justify-center items-center space-x-3 mb-6">
             <HeartIcon className="w-12 h-12 text-rose-500 drop-shadow-md" />
             <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-indigo-600">
-              가족돌봄OS
+              돌봄온
             </h1>
           </div>
           <h2 className="text-2xl font-bold text-slate-800 mb-3">

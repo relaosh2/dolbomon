@@ -106,13 +106,13 @@ export default function KidsMissionDashboard() {
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => window.location.href='/dolbomon'}>
             <HeartIcon className="w-8 h-8 text-rose-500" />
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-amber-500">
-              가족돌봄OS
+              돌봄온
             </span>
           </div>
           <nav className="hidden md:flex space-x-8 text-sm font-medium text-slate-600 items-center">
             <a href="/dolbomon" className="hover:text-amber-600 transition-colors">장기요양계산기</a>
             <span className="font-semibold text-amber-600">자녀효도퀘스트</span>
-            <a href="/dolbomon/os" className="hover:text-amber-600 transition-colors">가족돌봄OS</a>
+            <a href="/dolbomon/os" className="hover:text-amber-600 transition-colors">돌봄온</a>
             <a href="/dolbomon/donate" className="text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-full border border-amber-200 transition-colors font-bold">☕ 커피응원</a>
           </nav>
         </div>

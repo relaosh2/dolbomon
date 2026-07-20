@@ -1,4 +1,4 @@
-import type { NextConfig } from '@/next'
+import type { NextConfig } from 'next'
 import createMDX from '@next/mdx'
 import { codeInspectorPlugin } from 'code-inspector-plugin'
 import { env } from './env'
@@ -24,9 +24,6 @@ const nextConfig: NextConfig = {
   typescript: {
     // https://nextjs.org/docs/api-reference/next.config.js/ignoring-typescript-errors
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
   async redirects() {
     return [

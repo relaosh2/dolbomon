@@ -20,13 +20,13 @@ export default function DonatePage() {
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => window.location.href='/dolbomon'}>
             <HeartIcon className="w-8 h-8 text-rose-500" />
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-amber-700">
-              가족돌봄OS
+              돌봄온
             </span>
           </div>
           <nav className="hidden md:flex space-x-8 text-sm font-medium text-slate-600 items-center">
             <a href="/dolbomon" className="hover:text-amber-700 transition-colors">장기요양계산기</a>
             <a href="/dolbomon/mission" className="hover:text-amber-700 transition-colors">자녀효도퀘스트</a>
-            <a href="/dolbomon/os" className="hover:text-amber-700 transition-colors">가족돌봄OS</a>
+            <a href="/dolbomon/os" className="hover:text-amber-700 transition-colors">돌봄온</a>
             <span className="font-semibold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">☕ 커피응원</span>
           </nav>
         </div>
